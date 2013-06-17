@@ -1,6 +1,11 @@
 #include <iostream>
+#include "matrix.h"
 
-int main(int argc, char **argv) {
-    std::cout << "Hello, world!" << std::endl;
+using namespace std;
+
+int main()
+{
+	matrix testMatrix(5);
+	testMatrix.print();
     return 0;
 }

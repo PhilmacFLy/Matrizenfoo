@@ -22,11 +22,13 @@
 
 class matrix
 {
-  private 
-  double **werte;
-  int size;
-  public 
-  matrix(int insize);
+	private:
+		double **werte;
+		int size;
+
+   public:
+		matrix(int insize);
+		void print();
 };
 
 #endif // MATRIX_H

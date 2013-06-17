@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#include <iostream>
 #include "matrix.h"
 
 matrix::matrix(int insize)
@@ -25,15 +25,15 @@ this->size = insize;
 //memory allocated for elements of rows.
 
 
-werte = new int *[size] ;
+werte = new double *[size] ;
 
 //memory allocated for  elements of each column.
 
 
-for( int i = 0 ; i < sizeof ; i++ )
+for( int i = 0 ; i < insize ; i++ )
 {
-  werte[i] = new int[size];
-  
+  werte[i] = new double[size];
+
 }
 
 for(int i=0; i<size; i++)
@@ -43,18 +43,31 @@ for(int i=0; i<size; i++)
                     werte[i][j]=0;
             }
     }
-    
+
     werte[0][0] = 1;
-    werte[n-1][n-1] = 1;
-    
-    for (int b=1; b<n-1; b++)
+    werte[insize-1][insize-1] = 1;
+
+    for (int b=1; b<insize-1; b++)
     {
-        double Rand = werte[0][b-1]-(double)1/(n-1);
+        double Rand = werte[0][b-1]-(double)1/(insize-1);
         werte[0][b] = Rand;
         werte[b][0] = Rand;
         werte[size-1][(size-1)-b] = Rand;
         werte[(size-1)-b][size-1] = Rand;
     }
+}
+
+void matrix::print()
+{
+	for (int i = 0; i < this->size; i++)
+	{
+		for (int j = 0; j < this->size; j++)
+		{
+			std::cout << werte[i][j] << "\t\t";
+		}
+		std::cout << std::endl;
+	}
+
 }
 
 
