@@ -25,6 +25,7 @@ class matrix
 	private:
 		double **werte;
 		int size;
+		matrix fork();
 
    public:
 		matrix(int insize);
