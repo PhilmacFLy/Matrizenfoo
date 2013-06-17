@@ -29,8 +29,15 @@ class matrix
 
    public:
 		matrix(int insize);
+		void copyM(matrix toCopy);
+
 		void print();
 		void gaussseidel(int times);
+		void init();
+
+
+		int getSize();
+		double getItem(int x, int y);
 };
 
 #endif // MATRIX_H

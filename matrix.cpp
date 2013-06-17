@@ -19,11 +19,11 @@
 #include <iostream>
 #include "matrix.h"
 
-//*************************************************************************************************************************************************  
+//*************************************************************************************************************************************************
 // Private Implementations
-//************************************************************************************************************************************************* 
+//*************************************************************************************************************************************************
 
-matrix matrix::fork()
+/*matrix matrix::fork()
 {
 matrix forkedMatrix;
 forkedMatrix = new matrix(this->size);
@@ -35,31 +35,29 @@ forkedMatrix = new matrix(this->size);
 		}
 	}
 return forkedMatrix;
-}
+}*/
 
 
 
-//*************************************************************************************************************************************************  
+//*************************************************************************************************************************************************
 // Public Implementations
-//************************************************************************************************************************************************* 
-
-matrix::matrix(int insize)
+//*************************************************************************************************************************************************
+void matrix::copyM(matrix toCopy)
 {
-this->size = insize;
-//memory allocated for elements of rows.
-
-
-werte = new double *[size] ;
-
-//memory allocated for  elements of each column.
-
-
-for( int i = 0 ; i < insize ; i++ )
-{
-  werte[i] = new double[size];
+	//TODO: memcpy() waere schoener, aber da toCopy.matrix private ist, meh...
+	for (int i = 0; i < toCopy.getSize(); i++)
+	{
+		for (int j = 0; j < toCopy.getSize(); j++)
+			{
+				this->werte[i][j] = toCopy.getItem(i,j);
+				std::cout << toCopy.getItem(i,j) << std::endl;
+			}
+	}
 }
 
-for(int i=0; i<size; i++)
+void matrix::init()
+{
+	for(int i=0; i<size; i++)
     {
             for(int j=0; j<size; j++)
             {
@@ -68,16 +66,28 @@ for(int i=0; i<size; i++)
     }
 
     werte[0][0] = 1;
-    werte[insize-1][insize-1] = 1;
+    werte[this->size-1][this->size-1] = 1;
 
-    for (int b=1; b<insize-1; b++)
+    for (int b=1; b<this->size-1; b++)
     {
-        double Rand = werte[0][b-1]-(double)1/(insize-1);
+        double Rand = werte[0][b-1]-(double)1/(this->size-1);
         werte[0][b] = Rand;
         werte[b][0] = Rand;
         werte[size-1][(size-1)-b] = Rand;
         werte[(size-1)-b][size-1] = Rand;
     }
+}
+matrix::matrix(int insize)
+{
+	this->size = insize;
+	//memory allocated for elements of rows.
+	werte = new double *[size] ;
+
+	//memory allocated for  elements of each column.
+	for( int i = 0 ; i < insize ; i++ )
+	{
+		werte[i] = new double[size];
+	}
 }
 
 void matrix::print()
@@ -104,8 +114,15 @@ void matrix::gaussseidel(int times)
             }
     }
   }
- 
-  
 }
 
+int matrix::getSize()
+{
+	return this->size;
+}
+
+double matrix::getItem(int x, int y)
+{
+	return werte[x][y];
+}
 

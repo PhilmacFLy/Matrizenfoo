@@ -24,8 +24,13 @@ using namespace std;
 int main()
 {
 	matrix testMatrix(5);
+	testMatrix.init();
+	//testMatrix.print();
+	testMatrix.gaussseidel(10);
 	testMatrix.print();
-	testMatrix.gaussseidel(1);
-	testMatrix.print();
+	cout << "kopieren..." << endl << endl;
+	matrix test2Matrix(5);
+	test2Matrix.copyM(testMatrix);
+	test2Matrix.print();
     return 0;
 }
