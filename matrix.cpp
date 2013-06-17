@@ -70,5 +70,18 @@ void matrix::print()
 
 }
 
+void matrix::gaussseidel(int times)
+{
+  for(int k=0; k<times; k++)
+  {
+    for(int i=1; i<size-1; i++)
+    {
+            for(int j=1; j<size-1; j++)
+            {
+                    werte[i][j]=0.25*(werte[i-1][j]+werte[i+1][j]+werte[i][j+1]+werte[i][j-1]);
+            }
+    }
+  }
+}
 
 

@@ -29,6 +29,7 @@ class matrix
    public:
 		matrix(int insize);
 		void print();
+		void gaussseidel(int times);
 };
 
 #endif // MATRIX_H
