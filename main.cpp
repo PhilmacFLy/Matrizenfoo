@@ -25,5 +25,7 @@ int main()
 {
 	matrix testMatrix(5);
 	testMatrix.print();
+	testMatrix.gaussseidel(1);
+	testMatrix.print();
     return 0;
 }
