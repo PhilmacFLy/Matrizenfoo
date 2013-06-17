@@ -33,7 +33,6 @@ werte = new double *[size] ;
 for( int i = 0 ; i < insize ; i++ )
 {
   werte[i] = new double[size];
-
 }
 
 for(int i=0; i<size; i++)
@@ -67,7 +66,6 @@ void matrix::print()
 		}
 		std::cout << std::endl;
 	}
-
 }
 
 void matrix::gaussseidel(int times)
