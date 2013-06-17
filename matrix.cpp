@@ -34,6 +34,7 @@ forkedMatrix = new matrix(this->size);
 			forkedMatrix.werte[i][j] = this->werte[i][j];
 		}
 	}
+return forkedMatrix;
 }
 
 
