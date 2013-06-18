@@ -116,6 +116,26 @@ void matrix::gaussseidel(int times)
   }
 }
 
+
+void matrix::jacobi(int times)
+{
+  //TODO: Genauigkeit statt durchlaeufe implementieren;
+  matrix tmpmatrix(this->size);
+  tmpmatrix.init();
+  tmpmatrix.copyM(this->werte);
+  for(int k=0; k<times; k++)
+  {
+    for(int i=1; i<size-1; i++)
+    {
+            for(int j=1; j<size-1; j++)
+            {
+                    werte[i][j]=0.25*(tmpmatrix.werte[i-1][j]+tmpmatrix.werte[i+1][j]+tmpmatrix.werte[i][j+1]+tmpmatrix.werte[i][j-1]);
+            }
+    }
+  } 
+}
+
+
 int matrix::getSize()
 {
 	return this->size;

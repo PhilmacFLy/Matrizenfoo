@@ -33,6 +33,7 @@ class matrix
 
 		void print();
 		void gaussseidel(int times);
+		void jacobi(int times);
 		void init();
 
 
