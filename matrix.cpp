@@ -111,18 +111,18 @@ void matrix::gaussseidel(double Accuracy)
 
    while(isInaccurate)
    {
-      buffer = werte[size-1][size-1];
+      isInaccurate = false;
       for(int i=1; i<size-1; i++)
       {
 	 for(int j=1; j<size-1; j++)
 	 {
+	    buffer = werte[i][j];
 	    werte[i][j]=0.25*(werte[i-1][j]+werte[i+1][j]+werte[i][j+1]+werte[i][j-1]);
+	    if (Accuracy < std::abs(werte[i][j]-buffer))
+	    {
+	       isInaccurate=true;
+	    }
 	 }
-
-      }
-      if (Accuracy < std::abs(werte[size-1][size-1]-buffer))
-      {
-	 isInaccurate=true;
       }
   }
 }
