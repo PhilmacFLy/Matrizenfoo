@@ -23,18 +23,18 @@ using namespace std;
 
 int main()
 {
-	matrix testMatrix(5);
-	testMatrix.init();
-	matrix testMatrix2(5);
-	testMatrix2.init();
-	//testMatrix.print();
-	testMatrix.gaussseidel(10);
-	testMatrix2.jacobi(0.000005);
-	testMatrix.print();
-	testMatrix2.print();
-	cout << "kopieren..." << endl << endl;
-	matrix test2Matrix(5);
-	test2Matrix.copyM(testMatrix);
-	test2Matrix.print();
-    return 0;
+   matrix testMatrix(5);
+   testMatrix.init();
+   matrix testMatrix2(5);
+   testMatrix2.init();
+   //testMatrix.print();
+   testMatrix.gaussseidel(10);
+   testMatrix2.jacobi(0.000005);
+   testMatrix.print();
+   testMatrix2.print();
+   cout << "kopieren..." << endl << endl;
+   matrix test2Matrix(5);
+   test2Matrix.copyM(testMatrix);
+   test2Matrix.print();
+   return 0;
 }

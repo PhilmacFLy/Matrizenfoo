@@ -22,23 +22,23 @@
 
 class matrix
 {
-	private:
-		double **werte;
-		int size;
-		matrix fork();
+   private:
+      double **werte;
+      int size;
+      matrix fork();
 
    public:
-		matrix(int insize);
-		void copyM(matrix toCopy);
+      matrix(int insize);
+      void copyM(matrix toCopy);
 
-		void print();
-		void gaussseidel(int times);
-		void jacobi(double Accuracy);
-		void init();
+      void print();
+      void gaussseidel(double Accuracy);
+      void jacobi(double Accuracy);
+      void init();
 
 
-		int getSize();
-		double getItem(int x, int y);
+      int getSize();
+      double getItem(int x, int y);
 };
 
 #endif // MATRIX_H
