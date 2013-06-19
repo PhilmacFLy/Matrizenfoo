@@ -122,7 +122,7 @@ void matrix::jacobi(int times)
   //TODO: Genauigkeit statt durchlaeufe implementieren;
   matrix tmpmatrix(this->size);
   tmpmatrix.init();
-  tmpmatrix.copyM(this->werte);
+  tmpmatrix.copyM(*this);
   for(int k=0; k<times; k++)
   {
     for(int i=1; i<size-1; i++)
