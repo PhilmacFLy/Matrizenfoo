@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include "matrix.h"
+#include <cmath>
 
 //*************************************************************************************************************************************************
 // Private Implementations
@@ -117,21 +118,30 @@ void matrix::gaussseidel(int times)
 }
 
 
-void matrix::jacobi(int times)
+void matrix::jacobi(double Accuracy)
 {
-  //TODO: Genauigkeit statt durchlaeufe implementieren;
   matrix tmpmatrix(this->size);
   tmpmatrix.init();
-  tmpmatrix.copyM(*this);
-  for(int k=0; k<times; k++)
+
+  
+  bool isInaccurate = true;
+  
+  while(isInaccurate )
   {
+	//Ist der Wert genau?
+	isInaccurate = false;
     for(int i=1; i<size-1; i++)
     {
             for(int j=1; j<size-1; j++)
             {
                     werte[i][j]=0.25*(tmpmatrix.werte[i-1][j]+tmpmatrix.werte[i+1][j]+tmpmatrix.werte[i][j+1]+tmpmatrix.werte[i][j-1]);
+                    if (Accuracy < std::abs(werte[i][j]-tmpmatrix.werte[i][j]))
+                    {
+						isInaccurate=true;
+					}
             }
     }
+    tmpmatrix.copyM(*this);
   } 
 }
 
