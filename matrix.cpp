@@ -52,7 +52,6 @@ void matrix::copyM(matrix toCopy)
       for (int j = 0; j < toCopy.getSize(); j++)
       {
 	 this->werte[i][j] = toCopy.getItem(i,j);
-	 std::cout << toCopy.getItem(i,j) << std::endl;
       }
    }
 }
@@ -109,7 +108,7 @@ void matrix::gaussseidel(double Accuracy)
 {
    double buffer = 0;
    bool isInaccurate = true;
-  
+
    while(isInaccurate)
    {
       buffer = werte[size-1][size-1];
@@ -119,7 +118,7 @@ void matrix::gaussseidel(double Accuracy)
 	 {
 	    werte[i][j]=0.25*(werte[i-1][j]+werte[i+1][j]+werte[i][j+1]+werte[i][j-1]);
 	 }
-            
+
       }
       if (Accuracy < std::abs(werte[size-1][size-1]-buffer))
       {
@@ -153,7 +152,7 @@ void matrix::jacobi(double Accuracy)
 	 }
       }
       tmpmatrix.copyM(*this);
-   } 
+   }
 }
 
 
