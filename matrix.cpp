@@ -19,6 +19,7 @@
 #include <iostream>
 #include "matrix.h"
 #include <cmath>
+#include <iomanip>
 
 //*************************************************************************************************************************************************
 // Private Implementations
@@ -97,10 +98,11 @@ void matrix::print()
 	{
 		for (int j = 0; j < this->size; j++)
 		{
-			std::cout << werte[i][j] << "\t\t";
+			std::cout << std::fixed << std::setprecision(10) <<werte[i][j] << "\t";
 		}
 		std::cout << std::endl;
 	}
+	std::cout << std::endl;
 }
 
 void matrix::gaussseidel(int times)
