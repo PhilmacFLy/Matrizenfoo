@@ -36,7 +36,7 @@ class matrix
    public:
       matrix(int inheight, int inwidth);
       void copyM(matrix toCopy);
-      matrix getpart(int i, int j);
+      double ** getpart(int i, int j);
       void print();
       void gaussseidel(double Accuracy);
       void jacobi(double Accuracy);

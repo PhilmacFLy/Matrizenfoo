@@ -80,7 +80,7 @@ void matrix::copyM(matrix toCopy)
    }
 }
 
-matrix matrix::getpart(int i, int j)
+double ** matrix::getpart(int i, int j)
 {
 matrix result(i, j);
 
@@ -91,7 +91,7 @@ matrix result(i, j);
 	 result.werte[ii][jj] = this->werte[ii][jj];
       }
    }
-return result;
+return result.werte;
 }
 
 
