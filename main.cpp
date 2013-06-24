@@ -18,14 +18,11 @@
 
 #include <iostream>
 #include "matrix.h"
-<<<<<<< HEAD
 #include <mpi.h>
 /* anzahl node */
 #define N 42
-=======
 //#include <mpi/mpi.h>
 
->>>>>>> 1b70aa98995f00412a14b08451a009c345fa1561
 using namespace std;
 
 void master(matrix &testMatrix);
@@ -33,7 +30,6 @@ void slave();
 
 int main(int argc, char** argv)
 {
-<<<<<<< HEAD
    int nprocs, myrank;
    MPI_Init(&argc, &argv);
    matrix testMatrix(5);
@@ -48,7 +44,6 @@ int main(int argc, char** argv)
    testMatrix.print();
    /*
    matrix testMatrix(5);
-=======
    matrix testMatrix(5, 5);
 >>>>>>> 1b70aa98995f00412a14b08451a009c345fa1561
    testMatrix.init();
@@ -65,7 +60,6 @@ int main(int argc, char** argv)
    //test2Matrix.copyM(testMatrix);
    //test2Matrix.print();
    */
-=======
    testMatrix.gaussseidel(0.000005);
    testMatrix2.jacobi(0.000005);
    testMatrix.print();
@@ -76,7 +70,6 @@ int main(int argc, char** argv)
    test2Matrix.print();
    //matrix blub = test2Matrix.getpart(3,4);
    //blub.print();
->>>>>>> 1b70aa98995f00412a14b08451a009c345fa1561
    return 0;
 }
 
