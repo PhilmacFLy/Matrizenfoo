@@ -24,7 +24,6 @@
 //*************************************************************************************************************************************************
 // Private Implementations
 //*************************************************************************************************************************************************
-
 /*matrix matrix::fork()
 {
 matrix forkedMatrix;
@@ -44,58 +43,87 @@ return forkedMatrix;
 //*************************************************************************************************************************************************
 // Public Implementations
 //*************************************************************************************************************************************************
+matrix::matrix(int inheight, int inwidth)
+{
+   this->height = inheight;
+   this->width = inwidth;
+   //memory allocated for elements of rows.
+   werte = new double *[inheight] ;
+
+   //memory allocated for  elements of each column.
+   for( int i = 0 ; i < inheight ; i++ )
+   {
+      werte[i] = new double[inwidth];
+   }
+}
+
+int matrix::getwidth()
+{
+return this->width;
+}
+
+int matrix::getheight()
+{
+return this->height;
+}
+
+
 void matrix::copyM(matrix toCopy)
 {
    //TODO: memcpy() waere schoener, aber da toCopy.matrix private ist, meh...
-   for (int i = 0; i < toCopy.getSize(); i++)
+   for (int i = 0; i < toCopy.getheight(); i++)
    {
-      for (int j = 0; j < toCopy.getSize(); j++)
+      for (int j = 0; j < toCopy.getwidth(); j++)
       {
 	 this->werte[i][j] = toCopy.getItem(i,j);
       }
    }
 }
 
+matrix matrix::getpart(int i, int j)
+{
+matrix result(i, j);
+
+   for (int ii = 0; ii < i; ii++)
+   {
+      for (int jj = 0; jj < j; jj++)
+      {
+	 result.werte[ii][jj] = this->werte[ii][jj];
+      }
+   }
+return result;
+}
+
+
 void matrix::init()
 {
-   for(int i=0; i<size; i++)
+   for(int i=0; i<height; i++)
    {
-      for(int j=0; j<size; j++)
+      for(int j=0; j<width; j++)
       {
 	 werte[i][j]=0;
       }
    }
 
    werte[0][0] = 1;
-   werte[this->size-1][this->size-1] = 1;
+   werte[this->width-1][this->height-1] = 1;
 
-   for (int b=1; b<this->size-1; b++)
+   for (int b=1; b<this->width-1; b++)
    {
-      double Rand = werte[0][b-1]-(double)1/(this->size-1);
+      double Rand = werte[0][b-1]-(double)1/(this->width-1);
       werte[0][b] = Rand;
       werte[b][0] = Rand;
-      werte[size-1][(size-1)-b] = Rand;
-      werte[(size-1)-b][size-1] = Rand;
+      werte[width-1][(width-1)-b] = Rand;
+      werte[(width-1)-b][width-1] = Rand;
    }
 }
-matrix::matrix(int insize)
-{
-   this->size = insize;
-   //memory allocated for elements of rows.
-   werte = new double *[size] ;
 
-   //memory allocated for  elements of each column.
-   for( int i = 0 ; i < insize ; i++ )
-   {
-      werte[i] = new double[size];
-   }
-}
 
 void matrix::print()
 {
-   for (int i = 0; i < this->size; i++)
+   for (int i = 0; i < this->width; i++)
    {
-      for (int j = 0; j < this->size; j++)
+      for (int j = 0; j < this->height; j++)
       {
 	 std::cout << std::fixed << std::setprecision(10) <<werte[i][j] << "\t";
       }
@@ -112,9 +140,9 @@ void matrix::gaussseidel(double Accuracy)
    while(isInaccurate)
    {
       isInaccurate = false;
-      for(int i=1; i<size-1; i++)
+      for(int i=1; i<width-1; i++)
       {
-	 for(int j=1; j<size-1; j++)
+	 for(int j=1; j<height-1; j++)
 	 {
 	    buffer = werte[i][j];
 	    werte[i][j]=0.25*(werte[i-1][j]+werte[i+1][j]+werte[i][j+1]+werte[i][j-1]);
@@ -130,7 +158,7 @@ void matrix::gaussseidel(double Accuracy)
 
 void matrix::jacobi(double Accuracy)
 {
-   matrix tmpmatrix(this->size);
+   matrix tmpmatrix(this->width, this->height);
    tmpmatrix.init();
 
 
@@ -140,9 +168,9 @@ void matrix::jacobi(double Accuracy)
    {
       //Ist der Wert genau?
       isInaccurate = false;
-      for(int i=1; i<size-1; i++)
+      for(int i=1; i<width-1; i++)
       {
-	 for(int j=1; j<size-1; j++)
+	 for(int j=1; j<height-1; j++)
 	 {
 	    werte[i][j]=0.25*(tmpmatrix.werte[i-1][j]+tmpmatrix.werte[i+1][j]+tmpmatrix.werte[i][j+1]+tmpmatrix.werte[i][j-1]);
 	    if (Accuracy < std::abs(werte[i][j]-tmpmatrix.werte[i][j]))
@@ -153,12 +181,6 @@ void matrix::jacobi(double Accuracy)
       }
       tmpmatrix.copyM(*this);
    }
-}
-
-
-int matrix::getSize()
-{
-   return this->size;
 }
 
 double matrix::getItem(int x, int y)
