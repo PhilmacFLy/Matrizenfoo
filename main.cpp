@@ -37,5 +37,7 @@ int main()
    matrix test2Matrix(5, 5);
    test2Matrix.copyM(testMatrix);
    test2Matrix.print();
+   matrix blub = test2Matrix.getpart(3,4);
+   blub.print();
    return 0;
 }

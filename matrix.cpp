@@ -48,12 +48,12 @@ matrix::matrix(int inheight, int inwidth)
    this->height = inheight;
    this->width = inwidth;
    //memory allocated for elements of rows.
-   werte = new double *[inheight] ;
+   werte = new double *[inwidth] ;
 
    //memory allocated for  elements of each column.
-   for( int i = 0 ; i < inheight ; i++ )
+   for( int i = 0 ; i < inwidth ; i++ )
    {
-      werte[i] = new double[inwidth];
+      werte[i] = new double[inheight];
    }
 }
 
