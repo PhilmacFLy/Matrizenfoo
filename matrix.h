@@ -22,22 +22,27 @@
 
 class matrix
 {
+//*************************************************************************************************************************************************
+// Private Definitions
+//*************************************************************************************************************************************************
    private:
       double **werte;
-      int size;
+      int width, height;
       matrix fork();
-
+      
+//*************************************************************************************************************************************************
+// Public Definitions
+//*************************************************************************************************************************************************
    public:
-      matrix(int insize);
+      matrix(int inheight, int inwidth);
       void copyM(matrix toCopy);
-
+      double ** getpart(int i, int j);
       void print();
       void gaussseidel(double Accuracy);
       void jacobi(double Accuracy);
       void init();
-
-
-      int getSize();
+      int getheight();
+      int getwidth();
       double getItem(int x, int y);
 };
 
