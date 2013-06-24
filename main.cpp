@@ -19,8 +19,6 @@
 #include <iostream>
 #include "matrix.h"
 #include <mpi.h>
-/* anzahl node */
-#define N 42
 //#include <mpi/mpi.h>
 
 using namespace std;
@@ -32,71 +30,63 @@ int main(int argc, char** argv)
 {
    int nprocs, myrank;
    MPI_Init(&argc, &argv);
-   matrix testMatrix(5);
-
    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-   if (!myrank)
-      master(testMatrix);
-   else
-      slave();
-   MPI_Finalize();
-   testMatrix.print();
-   /*
-   matrix testMatrix(5);
-   matrix testMatrix(5, 5);
->>>>>>> 1b70aa98995f00412a14b08451a009c345fa1561
-   testMatrix.init();
-   matrix testMatrix2(5, 5);
-   testMatrix2.init();
-   //testMatrix.print();
-<<<<<<< HEAD
-   testMatrix.gaussseidel(0.000000005);
-   testMatrix2.jacobi(0.000000005);
-   testMatrix.print();
-   testMatrix2.print();
-   //cout << "kopieren..." << endl << endl;
-   //matrix test2Matrix(5);
-   //test2Matrix.copyM(testMatrix);
-   //test2Matrix.print();
+   /* das lassen wir jetzt erstmal drin....
+      Folgendes: ohne die schelife terminiert das programm zu schnell
+      Es wird nur ein "node" erzeugt... durch das warten (plus -np 4 switch)
+      funktionierts auch wie gewuenscht...
+      quick'n'dirty
    */
-   testMatrix.gaussseidel(0.000005);
-   testMatrix2.jacobi(0.000005);
-   testMatrix.print();
-   testMatrix2.print();
-   cout << "kopieren..." << endl << endl;
-   matrix test2Matrix(5, 5);
-   test2Matrix.copyM(testMatrix);
-   test2Matrix.print();
-   //matrix blub = test2Matrix.getpart(3,4);
-   //blub.print();
+   for (int i = 0; i < 20000; i++)
+   {
+      cout;
+   }
+   cout << nprocs << endl;
+   cout << myrank << endl;
+
+   MPI_Finalize();
    return 0;
 }
 
 
 void master(matrix &testMatrix)
 {
-   MPI_Status status;
-   int nodeCount;
-   MPI_Comm_size(MPI_COMM_WORLD, &nodeCount);
-   cout << size << endl;
+//   MPI_Status status;
+   int nodeCount = 4;
+   //MPI_Comm_size(MPI_COMM_WORLD, &nodeCount);
+   //testMatrix.jacobi(0.00000005);
+   //cout << nodeCount << endl;
 
 
    /* Schritt 1: aufteilen der matrix in teilmatrizen,
-      abhaengig von der anzahl der nodes
-
-   */
-   int linesPerNode;
+      abhaengig von der anzahl der nodes */
    /* zeilen, die jedem node zum berechnen uebergeben wird */
-   int linesPerNode = testMatrix.getHeight() / nodeCount;
-   /* zeilen, die uebrig bleiben */
-   int modLines = testMatrix.getHeight() % nodeCount;
-   int anfang,ende;
+   int linesPerNode = testMatrix.getheight() / nodeCount;
+
+   /* anzahl der zeilen, die uebrig bleiben */
+   int modLines = testMatrix.getheight() % nodeCount;
+   int anfang = 0;
+   int ende = 0;
+
+   /* aufteilen auf node dinger */
    for (int i = 0; i < nodeCount; i++)
    {
       if (modLines > 0)
-        MPI_Send (testMatrix.getPart(), 2, MPI_DOUBLE, i+1, MSG_DATA, MPI_COMM_WORLD);
-
+      {
+         ende = anfang+linesPerNode+1;
+         cout << "1ich wuerde jetzt knoten nummer " << i << " die zeilen " << anfang << " bis " << ende-1 << " schicken." << endl;
+         MPI_Send(testMatrix.getpart(anfang,ende),(ende-anfang)*testMatrix.getwidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
+         anfang = ende;
+         modLines--;
+      } else
+      {
+         ende = anfang+linesPerNode;
+         cout << "2ich wuerde jetzt knoten nummer " << i << " die zeilen " << anfang << " bis " << ende-1 << " schicken." << endl;
+         MPI_Send(testMatrix.getpart(anfang,ende),(ende-anfang)*testMatrix.getwidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
+         anfang = ende;
+      }
+       // MPI_Send (testMatrix.getPart(), 2, MPI_DOUBLE, i+1, MSG_DATA, MPI_COMM_WORLD);
    }
 
 }
