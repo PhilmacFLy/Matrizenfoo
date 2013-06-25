@@ -26,24 +26,25 @@ class matrix
 // Private Definitions
 //*************************************************************************************************************************************************
    private:
-      double **werte;
       int width, height;
-      matrix fork();
-      
+      //matrix fork();
+
 //*************************************************************************************************************************************************
 // Public Definitions
 //*************************************************************************************************************************************************
    public:
       matrix(int inheight, int inwidth);
-      void copyM(matrix toCopy);
-      double ** getpart(int i, int j);
+      double *werte;
+      //void copyM(matrix toCopy);
+      double * getpart(int height, int width);
       void print();
-      void gaussseidel(double Accuracy);
-      void jacobi(double Accuracy);
+      //void gaussseidel(double Accuracy);
+      //void jacobi(double Accuracy);
       void init();
+      //double * getMatrix(double * testArray);
       int getheight();
       int getwidth();
-      double getItem(int x, int y);
+      //double getItem(int x, int y);
 };
 
 #endif // MATRIX_H

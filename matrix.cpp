@@ -48,13 +48,7 @@ matrix::matrix(int inheight, int inwidth)
    this->height = inheight;
    this->width = inwidth;
    //memory allocated for elements of rows.
-   werte = new double *[inwidth] ;
-
-   //memory allocated for  elements of each column.
-   for( int i = 0 ; i < inwidth ; i++ )
-   {
-      werte[i] = new double[inheight];
-   }
+   werte = new double [inwidth*inheight];
 }
 
 int matrix::getwidth()
@@ -67,8 +61,62 @@ int matrix::getheight()
 return this->height;
 }
 
+void matrix::init()
+{
+   for(int i=0; i<height*width; i++)
+   {
+      werte[i]=0;
+   }
+   werte[0] = 1;
+   werte[this->width*this->height-1] = 1;
 
-void matrix::copyM(matrix toCopy)
+   for (int j = 1; j < this->width; j++)
+   {
+      double Rand = werte[j-1]-(double)1/(this->width-1);
+      //zeilen, von vorne und hinten
+      werte[j] = Rand;
+      werte[(this->width*this->height)-j-1] = Rand;
+      werte[this->width*j] = Rand;
+      werte[this->width*this->height-(j*this->width)-1] = Rand;
+
+      //spalten
+   }
+  /* for (int b=1; b<this->width*this->height-1; b++)
+   {
+      double Rand = werte[0][b-1]-(double)1/(this->width-1);
+      werte[0][b] = Rand;
+      werte[b][0] = Rand;
+      werte[width-1][(width-1)-b] = Rand;
+      werte[(width-1)-b][width-1] = Rand;
+   }*/
+
+}
+void matrix::print()
+{
+   for (int i = 0; i < this->width*this->height; i++)
+   {
+      std::cout << werte[i] << "\t";
+      if ( ((i+1) % this->width == 0) && i != 0)
+         std::cout << std::endl;
+   }
+   std::cout << std::endl;
+}
+
+
+double * matrix::getpart(int beginLine, int endLine)
+{
+   matrix result(endLine-beginLine+1, this->width);
+   int cnt = 0;
+   for (int ii = beginLine*this->width; ii <= ((endLine+1)*this->width)-1; ii++)
+   {
+      result.werte[cnt] = this->werte[ii];
+      //std::cout << "ich setze jetzt den wert " << this->werte[ii] << " an die stelle " << cnt << std::endl;
+      cnt++;
+   }
+   return result.werte;
+}
+
+/*void matrix::copyM(matrix toCopy)
 {
    //TODO: memcpy() waere schoener, aber da toCopy.matrix private ist, meh...
    for (int i = 0; i < toCopy.getheight(); i++)
@@ -79,7 +127,19 @@ void matrix::copyM(matrix toCopy)
       }
    }
 }
-
+double * matrix::getMatrix(double * matrixArray)
+{
+   int cnt = 0;
+   for (int i = 0; i < height; i++)
+   {
+      for (int j = 0; j < width; j++)
+      {
+         matrixArray[cnt] = werte[j][i];
+         cnt++;
+      }
+   }
+   return matrixArray;
+}
 double ** matrix::getpart(int i, int j)
 {
 matrix result(i, j);
@@ -187,4 +247,4 @@ double matrix::getItem(int x, int y)
 {
    return werte[x][y];
 }
-
+*/
