@@ -116,17 +116,20 @@ double * matrix::getpart(int beginLine, int endLine)
    return result.werte;
 }
 
-/*void matrix::copyM(matrix toCopy)
+void matrix::copyM(matrix toCopy)
 {
    //TODO: memcpy() waere schoener, aber da toCopy.matrix private ist, meh...
    for (int i = 0; i < toCopy.getheight(); i++)
    {
       for (int j = 0; j < toCopy.getwidth(); j++)
       {
-	 this->werte[i][j] = toCopy.getItem(i,j);
+	 //this->werte[i][j] = toCopy.getItem(i,j);
+	 this->setItem(i, j, toCopy.getItem(i,j));
       }
    }
 }
+
+/*
 double * matrix::getMatrix(double * matrixArray)
 {
    int cnt = 0;
@@ -214,7 +217,7 @@ void matrix::gaussseidel(double Accuracy)
       }
   }
 }
-
+*/
 
 void matrix::jacobi(double Accuracy)
 {
@@ -232,8 +235,9 @@ void matrix::jacobi(double Accuracy)
       {
 	 for(int j=1; j<height-1; j++)
 	 {
-	    werte[i][j]=0.25*(tmpmatrix.werte[i-1][j]+tmpmatrix.werte[i+1][j]+tmpmatrix.werte[i][j+1]+tmpmatrix.werte[i][j-1]);
-	    if (Accuracy < std::abs(werte[i][j]-tmpmatrix.werte[i][j]))
+	    //werte[i][j]=0.25*(tmpmatrix.werte[i-1][j]+tmpmatrix.werte[i+1][j]+tmpmatrix.werte[i][j+1]+tmpmatrix.werte[i][j-1]);
+	    this->setItem(i,j, (0.25* (tmpmatrix.getItem(i-1, j)+tmpmatrix.getItem(i+1,j)+tmpmatrix.getItem(i, j+1)+tmpmatrix.getItem(i, j-1))));
+	    if (Accuracy < std::abs(this->getItem(i,j)-tmpmatrix.getItem(i,j)))
 	    {
 	       isInaccurate=true;
 	    }
@@ -243,8 +247,13 @@ void matrix::jacobi(double Accuracy)
    }
 }
 
+
 double matrix::getItem(int x, int y)
 {
-   return werte[x][y];
+   return werte[(x)*width+y];
 }
-*/
+
+void matrix::setItem(int x, int y, double item)
+{
+   werte[(x)*width+y] = item;
+}

@@ -61,9 +61,12 @@ void master()
    double* testArray = new double[testMatrix.getwidth()*testMatrix.getheight()];
    testArray = testMatrix.getpart(0,2);
    testMatrix.print();
+   //cout << testMatrix.getItem(1, 3) << endl;
+   //testMatrix
    int nodeCount = 4;
    //MPI_Comm_size(MPI_COMM_WORLD, &nodeCount);
-   //testMatrix.jacobi(0.00000005);
+   testMatrix.jacobi(0.00000005);
+   testMatrix.print();
    //cout << nodeCount << endl;
 
    /* Schritt 1: aufteilen der matrix in teilmatrizen,

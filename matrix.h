@@ -35,16 +35,17 @@ class matrix
    public:
       matrix(int inheight, int inwidth);
       double *werte;
-      //void copyM(matrix toCopy);
+      void copyM(matrix toCopy);
       double * getpart(int height, int width);
       void print();
       //void gaussseidel(double Accuracy);
-      //void jacobi(double Accuracy);
+      void jacobi(double Accuracy);
       void init();
       //double * getMatrix(double * testArray);
       int getheight();
       int getwidth();
-      //double getItem(int x, int y);
+      double getItem(int x, int y);
+      void setItem(int x, int y, double item);
 };
 
 #endif // MATRIX_H
