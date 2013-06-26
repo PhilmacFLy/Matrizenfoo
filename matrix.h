@@ -34,6 +34,7 @@ class matrix
 //*************************************************************************************************************************************************
    public:
       matrix(int inheight, int inwidth);
+      matrix(double* array, int inheight, int inwidth);
       double *werte;
       void copyM(matrix toCopy);
       double * getpart(int height, int width);

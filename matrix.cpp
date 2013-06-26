@@ -51,6 +51,19 @@ matrix::matrix(int inheight, int inwidth)
     werte = new double [inwidth*inheight];
 }
 
+matrix::matrix(double* array, int inheight , int inwidth)
+{
+   this->height = inheight;
+   this->width = inwidth;
+   //memory allocated for elements of rows.
+   werte = new double [inwidth*inheight];
+   for(int i=0; i++; i<(inwidth*inheight))
+   {
+      werte[i] = array[i];
+   }
+}
+
+
 int matrix::getwidth()
 {
     return this->width;
