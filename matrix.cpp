@@ -234,32 +234,49 @@ void matrix::gaussseidel(double Accuracy)
   }
 }
 */
-void matrix::jacobi(double accuracy)
+void matrix::jacobi(double acc)
 {
    /* temp matrix anlegen, mit werten der eigentlich matrix befuellen */
    matrix tmpmatrix(this->height, this->width);
    for(int i = 0; i < this->height*this->width; i++)
       tmpmatrix.setItem(i, this->getItem(i));
-
    bool isInaccurate = true;
+   //int cnt = 0;
    while (isInaccurate)
    {
+      //tmpmatrix.print();
+      //std::cout << ++cnt << std::endl;
+      //this->print();
       isInaccurate = false;
-      for (int spalte = 1; spalte < this->height; spalte++)
+      for (int spalte = 1; spalte < this->height-1; spalte++)
       {
-         for (int spaltenelement = 1; spaltenelement < this->width; spaltenelement++)
+         for (int spaltenelement = 1; spaltenelement < this->width-1; spaltenelement++)
          {
-           // werte[spalte*spaltenelement] = .25*(tmpmatrix.getItem(spalte-1*spaltenelement)
-            double neuerWert = tmpmatrix.getItem(spalte-1*spaltenelement);
-            neuerWert += tmpmatrix.getItem(spalte+1*spaltenelement);
-            neuerWert += tmpmatrix.getItem(spalte*spaltenelement-1);
-            neuerWert += tmpmatrix.getItem(spalte*spaltenelement+1);
+            double neuerWert = tmpmatrix.getItem((spalte-1)*this->getwidth()+spaltenelement);
+            neuerWert += tmpmatrix.getItem((spalte+1)*this->getwidth()+spaltenelement);
+            neuerWert += tmpmatrix.getItem(spalte*this->getwidth()+spaltenelement-1);
+            neuerWert += tmpmatrix.getItem(spalte*this->getwidth()+spaltenelement+1);
             neuerWert *= .25;
-            werte[spalte*spaltenelement] = neuerWert;
-            if (accuracy < std::abs(werte[spalte*spaltenelement] - tmpmatrix.getItem(spalte*spaltenelement)))
-               isInaccurate = true;
+            werte[spalte*this->getwidth()+spaltenelement] = neuerWert;
+            //std::cout << neuerWert << std::flush << std::endl;
+           // if (std::abs(acc) > std::abs(werte[spalte*this->getwidth()+spaltenelement] - tmpmatrix.getItem(spalte*this->getwidth()+spaltenelement)))
+            //{
+               //std::cout << werte[spalte*this->getwidth()+spaltenelement] << " - " <<  tmpmatrix.getItem(spalte*this->getwidth()+spaltenelement);
+               //std::cout << " - " << std::abs(werte[spalte*this->getwidth()+spaltenelement] - tmpmatrix.getItem(spalte*this->getwidth()+spaltenelement)) << std::endl;
+               //isInaccurate = true;
+            //}
          }
       }
+      int cnt = 0;
+      for (int i = 0 ; i < this->height*this->width;i++)
+      {
+         if (std::abs(acc) > std::abs(this->getItem(i) - tmpmatrix.getItem(i)))
+            cnt++;
+      }
+      if (cnt != this->height*this->width)
+         isInaccurate = true;
+
+
       for(int i = 0; i < this->height*this->width; i++)
          tmpmatrix.setItem(i, this->getItem(i));
    }

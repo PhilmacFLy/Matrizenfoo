@@ -42,6 +42,7 @@ int main(int argc, char** argv)
    for (int i = 0; i < 20000; i++)
    {
       cout;
+
    }
    //cout << nprocs << endl;
    //cout << myrank << endl;
@@ -58,7 +59,7 @@ int main(int argc, char** argv)
 void master()
 {
 //   MPI_Status status;
-   matrix testMatrix(20,20);
+   matrix testMatrix(125,125);
    testMatrix.init();
    double* testArray = new double[testMatrix.getwidth()*testMatrix.getheight()];
    testArray = testMatrix.getpart(0,2);
@@ -157,7 +158,7 @@ void slave()
    //Initial:
    //Empfangen der Matrixgröße (Blocking)
    MPI_Recv(info,2,MPI_INTEGER,0,0,MPI_COMM_WORLD,&status);
-   cout << "!!!!!!!!!!!!!!!!!!!" << info[0] << "    " << info[1] << flush << endl;
+   //cout << "!!!!!!!!!!!!!!!!!!!" << info[0] << "    " << info[1] << flush << endl;
    double matrixPart[info[0]*info[1]];
 
    //Empfangen der InitialMatrix (Blocking)
@@ -165,8 +166,8 @@ void slave()
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
    //cout << "Hallo, ich bin slave nummer " << myrank << " und habe erhalten: " << std::fixed << std::setprecision(10) << matrixPart[0] << " | " << matrixPart[1] << " | " << matrixPart[2] << " | " << matrixPart[3] << " | "<< matrixPart[4] << " | "<<  std::flush << std::endl;
    matrix nodeM(matrixPart,info[0], info[1]);
-   nodeM.jacobi(0.000000001);
-   //nodeM.print();
+      nodeM.jacobi(0.00000001);
+   nodeM.print();
    cout << endl << endl << "node " << myrank << " ist fertig!" << endl;
    //nodeM.jacobi(0.000000004);
 
