@@ -234,8 +234,37 @@ void matrix::gaussseidel(double Accuracy)
   }
 }
 */
+void matrix::jacobi(double accuracy)
+{
+   /* temp matrix anlegen, mit werten der eigentlich matrix befuellen */
+   matrix tmpmatrix(this->height, this->width);
+   for(int i = 0; i < this->height*this->width; i++)
+      tmpmatrix.setItem(i, this->getItem(i));
 
-void matrix::jacobi(double Accuracy)
+   bool isInaccurate = true;
+   while (isInaccurate)
+   {
+      isInaccurate = false;
+      for (int spalte = 1; spalte < this->height; spalte++)
+      {
+         for (int spaltenelement = 1; spaltenelement < this->width; spaltenelement++)
+         {
+           // werte[spalte*spaltenelement] = .25*(tmpmatrix.getItem(spalte-1*spaltenelement)
+            double neuerWert = tmpmatrix.getItem(spalte-1*spaltenelement);
+            neuerWert += tmpmatrix.getItem(spalte+1*spaltenelement);
+            neuerWert += tmpmatrix.getItem(spalte*spaltenelement-1);
+            neuerWert += tmpmatrix.getItem(spalte*spaltenelement+1);
+            neuerWert *= .25;
+            werte[spalte*spaltenelement] = neuerWert;
+            if (accuracy < std::abs(werte[spalte*spaltenelement] - tmpmatrix.getItem(spalte*spaltenelement)))
+               isInaccurate = true;
+         }
+      }
+      for(int i = 0; i < this->height*this->width; i++)
+         tmpmatrix.setItem(i, this->getItem(i));
+   }
+}
+/*void matrix::jacobi(double Accuracy)
 {
     matrix tmpmatrix(this->height, this->width);
     tmpmatrix.init();
@@ -249,11 +278,11 @@ void matrix::jacobi(double Accuracy)
         //std::cout << "hallo, ich iteriere gerade das " << iter << ". mal!" << std::endl;
         //iter++;
         //Ist der Wert genau?
-        tmpmatrix.print();
+        //tmpmatrix.print();
         isInaccurate = false;
-        for(int i=1; i<width-1; i++)
+        for(int i=1; i<height-1; i++)
         {
-            for(int j=1; j<height-1; j++)
+            for(int j=1; j<width-1; j++)
             {
                 //werte[i][j]=0.25*(tmpmatrix.werte[i-1][j]+tmpmatrix.werte[i+1][j]+tmpmatrix.werte[i][j+1]+tmpmatrix.werte[i][j-1]);
                 this->setItem(i,j, (0.25* (tmpmatrix.getItem(i-1, j)+tmpmatrix.getItem(i+1,j)+tmpmatrix.getItem(i, j+1)+tmpmatrix.getItem(i, j-1))));
@@ -265,7 +294,7 @@ void matrix::jacobi(double Accuracy)
         }
         tmpmatrix.copyM(*this);
     }
-}
+}*/
 
 
 double matrix::getItem(int x, int y)
@@ -276,4 +305,12 @@ double matrix::getItem(int x, int y)
 void matrix::setItem(int x, int y, double item)
 {
     werte[(x)*width+y] = item;
+}
+double matrix::getItem(int x)
+{
+   return werte[x];
+}
+void matrix::setItem(int x, double val)
+{
+   werte[x] = val;
 }

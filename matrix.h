@@ -46,6 +46,8 @@ class matrix
       int getheight();
       int getwidth();
       double getItem(int x, int y);
+      double getItem(int x);
+      void setItem(int x, double val);
       void setItem(int x, int y, double item);
 };
 

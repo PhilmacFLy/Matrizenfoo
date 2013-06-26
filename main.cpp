@@ -49,6 +49,7 @@ int main(int argc, char** argv)
       master();
    else
       slave();
+   MPI_Barrier(MPI_COMM_WORLD);
    MPI_Finalize();
    return 0;
 }
@@ -57,17 +58,17 @@ int main(int argc, char** argv)
 void master()
 {
 //   MPI_Status status;
-   matrix testMatrix(10,10);
+   matrix testMatrix(20,20);
    testMatrix.init();
    double* testArray = new double[testMatrix.getwidth()*testMatrix.getheight()];
    testArray = testMatrix.getpart(0,2);
-   testMatrix.print();
+   //testMatrix.print();
    //cout << testMatrix.getItem(1, 3) << endl;
    //testMatrix
    int nodeCount = 4;
    //MPI_Comm_size(MPI_COMM_WORLD, &nodeCount);
    //testMatrix.jacobi(0.00000005);
-   testMatrix.print();
+   //testMatrix.print();
    //cout << nodeCount << endl;
 
    /* Schritt 1: aufteilen der matrix in teilmatrizen,
@@ -163,15 +164,11 @@ void slave()
    MPI_Recv(matrixPart,info[0]*info[1],MPI_DOUBLE,0,1,MPI_COMM_WORLD,&status);
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
    //cout << "Hallo, ich bin slave nummer " << myrank << " und habe erhalten: " << std::fixed << std::setprecision(10) << matrixPart[0] << " | " << matrixPart[1] << " | " << matrixPart[2] << " | " << matrixPart[3] << " | "<< matrixPart[4] << " | "<<  std::flush << std::endl;
-   if (myrank == 1)
-   {
-      matrix nodeM(matrixPart,info[0], info[1]);
-      cout << "jacobi!!" << nodeM.getheight() << nodeM.getwidth() << flush << endl;
-      nodeM.jacobi(0.1);
-      nodeM.print();
-      std::cout << "^-------------------" << std::endl;
-      cout << endl << endl;
-   }
+   matrix nodeM(matrixPart,info[0], info[1]);
+   nodeM.jacobi(0.000000001);
+   //nodeM.print();
+   cout << endl << endl << "node " << myrank << " ist fertig!" << endl;
    //nodeM.jacobi(0.000000004);
+
 }
 
