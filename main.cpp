@@ -163,6 +163,8 @@ void slave()
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
    //cout << "Hallo, ich bin slave nummer " << myrank << " und habe erhalten: " << std::fixed << std::setprecision(10) << matrixPart[0] << " | " << matrixPart[1] << " | " << matrixPart[2] << " | " << matrixPart[3] << " | "<< matrixPart[4] << " | "<<  std::flush << std::endl;
 
+   matrix nodeM(matrix(info[0], info[1], matrixPart));
+   nodeM.jacobi()
 
 
 }
