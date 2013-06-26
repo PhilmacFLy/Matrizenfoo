@@ -57,7 +57,7 @@ matrix::matrix(double* array, int inheight , int inwidth)
    this->width = inwidth;
    //memory allocated for elements of rows.
    werte = new double [inwidth*inheight];
-   for(int i=0; i++; i<(inwidth*inheight))
+   for(int i=0; i<(inwidth*inheight); i++)
    {
       werte[i] = array[i];
    }
@@ -126,6 +126,9 @@ double * matrix::getpart(int beginLine, int endLine)
         //std::cout << "ich setze jetzt den wert " << this->werte[ii] << " an die stelle " << cnt << std::endl;
         cnt++;
     }
+    //std::cout << "v-------------------" << std::endl;
+    //result.print();
+    //std::cout << "^-------------------" << std::endl;
     return result.werte;
 }
 

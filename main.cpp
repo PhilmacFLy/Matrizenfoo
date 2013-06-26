@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 void master()
 {
 //   MPI_Status status;
-   matrix testMatrix(100,100);
+   matrix testMatrix(10,10);
    testMatrix.init();
    double* testArray = new double[testMatrix.getwidth()*testMatrix.getheight()];
    testArray = testMatrix.getpart(0,2);
@@ -66,7 +66,7 @@ void master()
    //testMatrix
    int nodeCount = 4;
    //MPI_Comm_size(MPI_COMM_WORLD, &nodeCount);
-   testMatrix.jacobi(0.00000005);
+   //testMatrix.jacobi(0.00000005);
    testMatrix.print();
    //cout << nodeCount << endl;
 
@@ -85,10 +85,11 @@ void master()
       cout << "1ich wuerde jetzt knoten nummer " << 1 << " die zeilen " << anfang << " bis " << ende << " schicken." << endl;
       int foo[2];
       testArray = testMatrix.getpart(anfang,ende);
+
       foo[0] = ende-anfang+1;
       foo[1] = testMatrix.getwidth();
       MPI_Send(&foo[0],2,MPI_INTEGER,1,0,MPI_COMM_WORLD);
-      MPI_Send(&testArray[0],(ende-anfang)*testMatrix.getwidth(),MPI_DOUBLE,1,1, MPI_COMM_WORLD);
+      MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,1,1, MPI_COMM_WORLD);
       anfang = ende-1;
       modLines--;
    } else
@@ -100,7 +101,7 @@ void master()
       foo[0] = ende-anfang+1;
       foo[1] = testMatrix.getwidth();
       MPI_Send(&foo[0],2,MPI_INTEGER,1,0,MPI_COMM_WORLD);
-      MPI_Send(&testArray[0],(ende-anfang)*testMatrix.getwidth(),MPI_DOUBLE,1,1, MPI_COMM_WORLD);
+      MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,1,1, MPI_COMM_WORLD);
       anfang = ende-1;
    }
 
@@ -116,7 +117,7 @@ void master()
          foo[0] = ende-anfang+1;
          foo[1] = testMatrix.getwidth();
          MPI_Send(&foo[0],2,MPI_INTEGER,i,0,MPI_COMM_WORLD);
-         MPI_Send(&testArray[0],(ende-anfang)*testMatrix.getwidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
+         MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
          anfang = ende-1;
          modLines--;
       } else
@@ -128,7 +129,7 @@ void master()
          foo[0] = ende-anfang+1;
          foo[1] = testMatrix.getwidth();
          MPI_Send(&foo[0],2,MPI_INTEGER,i,0,MPI_COMM_WORLD);
-         MPI_Send(&testArray[0],(ende-anfang)*testMatrix.getwidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
+         MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
          anfang = ende-1;
       }
    }
@@ -140,7 +141,7 @@ void master()
    foo[0] = ende-anfang+1;
    foo[1] = testMatrix.getwidth();
    MPI_Send(&foo[0],2,MPI_INTEGER,nodeCount-1,0,MPI_COMM_WORLD);
-   MPI_Send(&testArray[0],(ende-anfang)*testMatrix.getwidth(),MPI_DOUBLE,nodeCount-1,1, MPI_COMM_WORLD);
+   MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,nodeCount-1,1, MPI_COMM_WORLD);
    anfang = ende-1;
    modLines--;
 }
@@ -163,9 +164,12 @@ void slave()
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
    //cout << "Hallo, ich bin slave nummer " << myrank << " und habe erhalten: " << std::fixed << std::setprecision(10) << matrixPart[0] << " | " << matrixPart[1] << " | " << matrixPart[2] << " | " << matrixPart[3] << " | "<< matrixPart[4] << " | "<<  std::flush << std::endl;
 
-   matrix nodeM(matrix(info[0], info[1], matrixPart));
-   nodeM.jacobi()
-
-
+   matrix nodeM(matrix(matrixPart,info[0], info[1]));
+   nodeM.jacobi(0.002);
+   cout << "jacobi!!" << info[0]*info[1] << flush << endl;
+   nodeM.print();
+   std::cout << "^-------------------" << std::endl;
+   cout << endl << endl;
+   //nodeM.jacobi(0.000000004);
 }
 
