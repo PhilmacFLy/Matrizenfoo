@@ -237,7 +237,7 @@ void matrix::gaussseidel(double Accuracy)
 
 void matrix::jacobi(double Accuracy)
 {
-    matrix tmpmatrix(this->width, this->height);
+    matrix tmpmatrix(this->height, this->width);
     tmpmatrix.init();
 
 
@@ -249,6 +249,7 @@ void matrix::jacobi(double Accuracy)
         //std::cout << "hallo, ich iteriere gerade das " << iter << ". mal!" << std::endl;
         //iter++;
         //Ist der Wert genau?
+        tmpmatrix.print();
         isInaccurate = false;
         for(int i=1; i<width-1; i++)
         {
