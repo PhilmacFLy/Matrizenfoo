@@ -183,13 +183,46 @@ void slave(int nodeCount)
    /* node1 ist fertig, muss an node 2 senden */
    if (myrank == 1)
    {
-      cout << "ich, Node1, werde jetzt zeile " << info[0]-2 << "/" << info[0] << " an Node2 schicken" << endl;
-      mpiSendInfo[0] = doneStatus;
-      mpiSendInfo[1] = nodeM.getwidth();
-      MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,&req);
-      MPI_Wait(&req,MPI_STATUSES_IGNORE);
-      MPI_Recv(&mpiGetInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
-      cout << "lo, ich, 1, habe was geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
+      int neighborDone = 0;
+      int nodeDone = 0;
+      int jacobiReturn = 0;
+      double getLine[nodeM.getwidth()];
+
+      while (nodeDone == 0)
+      {
+         jacobiReturn = nodeM.jacobi(0.000001);
+         cout << "ich, Node1, werde jetzt zeile " << info[0]-2 << "/" << info[0] << " an Node2 schicken" << endl;
+         /* info array aufbauen */
+         mpiSendInfo[0] = jacobiReturn;
+         mpiSendInfo[1] = nodeM.getwidth();
+         /* nonblocking senden */
+         MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,&req);
+         MPI_Wait(&req,MPI_STATUSES_IGNORE);
+         /* status des nachbarn, ausser er hat im letzten schritt schon ende bekannt gegeben  */
+         if (neighborDone != 1)
+         {
+            /* info array abholen */
+            MPI_Recv(&mpiGetInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+            /* nachbar ist noch nicht fertig, line wird erwartet */
+            if (mpiGetInfo[0] == 1)
+            {
+               MPI_Recv(&getLine[0],nodeM.getwidth(),MPI_DOUBLE,2,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+            /* sonst: letztes mal zeile einlesen */
+            } else
+            {
+               MPI_Recv(&getLine[0],nodeM.getwidth(),MPI_DOUBLE,2,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               neighborDone = 1;
+            }
+            cout << "lo, ich, 1, habe was geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
+         }
+         /* genauigkeit erreicht? dann abbrechen */
+         if (jacobiReturn == 0)
+         {
+            nodeDone = 1;
+         }
+
+      }
+      //TODO: zeugs an master senden.
    /* letzter node */
    } else if (myrank == nodeCount-1)
    {
