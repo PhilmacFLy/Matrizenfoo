@@ -151,7 +151,7 @@ void master()
 void slave(int nodeCount)
 {
    MPI_Status status;
-   MPI_Request req;
+   MPI_Request reqStatus, reqLine;
    int myrank;
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
    int info[2];
@@ -175,7 +175,6 @@ void slave(int nodeCount)
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
    //cout << "Hallo, ich bin slave nummer " << myrank << " und habe erhalten: " << std::fixed << std::setprecision(10) << matrixPart[0] << " | " << matrixPart[1] << " | " << matrixPart[2] << " | " << matrixPart[3] << " | "<< matrixPart[4] << " | "<<  std::flush << std::endl;
    matrix nodeM(matrixPart,info[0], info[1]);
-   int doneStatus = nodeM.jacobi(0.00000001);
    //nodeM.print();
    cout << endl << endl << "node " << myrank << " ist fertig!" << endl;
 
@@ -196,8 +195,8 @@ void slave(int nodeCount)
          mpiSendInfo[0] = jacobiReturn;
          mpiSendInfo[1] = nodeM.getwidth();
          /* nonblocking senden */
-         MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,&req);
-         MPI_Wait(&req,MPI_STATUSES_IGNORE);
+         MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,&reqStatus);
+         MPI_Isend(&nodeM.werte[info[0]-2],nodeM.getwidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,&reqLine);
          /* status des nachbarn, ausser er hat im letzten schritt schon ende bekannt gegeben  */
          if (neighborDone != 1)
          {
@@ -215,6 +214,8 @@ void slave(int nodeCount)
             }
             cout << "lo, ich, 1, habe was geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
          }
+         MPI_Wait(&reqStatus,MPI_STATUSES_IGNORE);
+         MPI_Wait(&reqLine,MPI_STATUSES_IGNORE);
          /* genauigkeit erreicht? dann abbrechen */
          if (jacobiReturn == 0)
          {
@@ -226,12 +227,114 @@ void slave(int nodeCount)
    /* letzter node */
    } else if (myrank == nodeCount-1)
    {
-      cout << "ich, Node" << nodeCount-1 << " werde jetzt Node " << myrank-1 << "zeile 1" << "/" << info[0] << " schicken" << endl;
-      //MPI_Recv(mpiInfo,2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
-      //cout << "lo, hab mpiInfo erhalten, inhalt: " << mpiInfo[0] << " " << mpiInfo[1] << flush << endl;
+      int neighborDone = 0;
+      int nodeDone = 0;
+      int jacobiReturn = 0;
+      double getLine[nodeM.getwidth()];
+
+      while (nodeDone == 0)
+      {
+         jacobiReturn = nodeM.jacobi(0.000001);
+         cout << "ich, Node3, werde jetzt zeile " << info[0]-2 << "/" << info[0] << " an Node2 schicken" << endl;
+         /* info array aufbauen */
+         mpiSendInfo[0] = jacobiReturn;
+         mpiSendInfo[1] = nodeM.getwidth();
+         /* nonblocking senden */
+         MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,&reqStatus);
+         MPI_Isend(&nodeM.werte[info[0]-2],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,&reqLine);
+         /* status des nachbarn, ausser er hat im letzten schritt schon ende bekannt gegeben  */
+         if (neighborDone != 1)
+         {
+            /* info array abholen */
+            MPI_Recv(&mpiGetInfo[0],2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+            /* nachbar ist noch nicht fertig, line wird erwartet */
+            if (mpiGetInfo[0] == 1)
+            {
+               MPI_Recv(&getLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+            /* sonst: letztes mal zeile einlesen */
+            } else
+            {
+               MPI_Recv(&getLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               neighborDone = 1;
+            }
+            cout << "lo, ich, 1, habe was geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
+         }
+         MPI_Wait(&reqStatus,MPI_STATUSES_IGNORE);
+         MPI_Wait(&reqLine,MPI_STATUSES_IGNORE);
+         /* genauigkeit erreicht? dann abbrechen */
+         if (jacobiReturn == 0)
+         {
+            nodeDone = 1;
+         }
+
+      }
    /* restliche nodes */
    } else
    {
+      int upperNeighborDone = 0;
+      int lowerNeighborDone = 0;
+      int nodeDone = 0;
+      int jacobiReturn = 0;
+      double getUpperLine[nodeM.getwidth()];
+      double getLowerLine[nodeM.getwidth()];
+      while (nodeDone == 0)
+      {
+         jacobiReturn = nodeM.jacobi(0.000001);
+         /* node drueber */
+         /* status array */
+         mpiSendInfo[0] = jacobiReturn;
+         mpiSendInfo[1] = nodeM.getwidth();
+         MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,&reqStatus);
+         MPI_Isend(&nodeM.werte[2],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,&reqLine);
+         if (upperNeighborDone != 1)
+         {
+            /* info array abholen */
+            MPI_Recv(&mpiGetInfo[0],2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+            /* nachbar ist noch nicht fertig, line wird erwartet */
+            if (mpiGetInfo[0] == 1)
+            {
+               MPI_Recv(&getUpperLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+            /* sonst: letztes mal zeile einlesen */
+            } else
+            {
+               MPI_Recv(&getUpperLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               upperNeighborDone = 1;
+            }
+            cout << "lo, ich, 2, habe was von oben geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
+         }
+         MPI_Wait(&reqStatus,MPI_STATUSES_IGNORE);
+         MPI_Wait(&reqLine,MPI_STATUSES_IGNORE);
+
+         /* node drunter */
+         MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,&reqStatus);
+         MPI_Isend(&nodeM.werte[info[0]-2],nodeM.getwidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,&reqLine);
+         if (lowerNeighborDone != 1)
+         {
+            /* info array abholen */
+            MPI_Recv(&mpiGetInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+            /* nachbar ist noch nicht fertig, line wird erwartet */
+            if (mpiGetInfo[0] == 1)
+            {
+               MPI_Recv(&getLowerLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+            /* sonst: letztes mal zeile einlesen */
+            } else
+            {
+               MPI_Recv(&getLowerLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               lowerNeighborDone = 1;
+            }
+            cout << "lo, ich, 2, habe was von unten geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
+         }
+         /* genauigkeit erreicht? dann abbrechen */
+         if (jacobiReturn == 0)
+         {
+            nodeDone = 1;
+         }
+         MPI_Wait(&reqStatus,MPI_STATUSES_IGNORE);
+         MPI_Wait(&reqLine,MPI_STATUSES_IGNORE);
+      }
+
+
+     /* alter code, vllt ist das noch was bauchbares
       cout << "ich, Node " << myrank << " werde Zeile " << info[0]-2 << "/" << info[0] << " an Node " << myrank+1 << "senden" << endl;
       cout << "ich, Node " << myrank << " werde Zeile " << 2 << "/" << info[0] << " an Node " << myrank-1 << "senden" << endl;
       mpiSendInfo[0] = 1;
@@ -240,6 +343,7 @@ void slave(int nodeCount)
       cout << "lo, hab mpiInfo erhalten, inhalt: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
       MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,&req);
       MPI_Wait(&req,MPI_STATUSES_IGNORE);
+      */
    }
 }
 
