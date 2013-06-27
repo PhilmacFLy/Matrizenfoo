@@ -40,7 +40,7 @@ class matrix
       double * getpart(int height, int width);
       void print();
       //void gaussseidel(double Accuracy);
-      void jacobi(double Accuracy);
+      int jacobi(double Accuracy);
       void init();
       //double * getMatrix(double * testArray);
       int getheight();

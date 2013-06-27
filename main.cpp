@@ -26,9 +26,10 @@
 using namespace std;
 
 void master();
-void slave();
+void slave(int nodeCount);
 int main(int argc, char** argv)
 {
+   int nodeCount = 4;
    int nprocs, myrank;
    MPI_Init(&argc, &argv);
    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -49,7 +50,7 @@ int main(int argc, char** argv)
    if (!myrank)
       master();
    else
-      slave();
+      slave(nodeCount);
    MPI_Barrier(MPI_COMM_WORLD);
    MPI_Finalize();
    return 0;
@@ -59,7 +60,7 @@ int main(int argc, char** argv)
 void master()
 {
 //   MPI_Status status;
-   matrix testMatrix(125,125);
+   matrix testMatrix(20,20);
    testMatrix.init();
    double* testArray = new double[testMatrix.getwidth()*testMatrix.getheight()];
    testArray = testMatrix.getpart(0,2);
@@ -149,12 +150,21 @@ void master()
 }
 
 
-void slave()
+void slave(int nodeCount)
 {
    MPI_Status status;
    int myrank;
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
    int info[2];
+
+   /* mpiXInfo[2]
+    * mpiXInfo[0] == 0,1; 1: node hat genauigkeit noch nicht erreicht.
+    *                         d.h.: node wird nach der naechsten iteration nochmal daten liefern
+    * mpiXInfo[1] == laenge der gesendeten zeile. redundant afaik, aber was solls...
+    */
+   int mpiSendInfo[2];  /* infos, die bei der interNodeKommunikation gesendet werden */
+   int mpiGetInfo[2];   /* infos, die bei der interNodeKommunikation empfangen werden */
+
    //Initial:
    //Empfangen der Matrixgröße (Blocking)
    MPI_Recv(info,2,MPI_INTEGER,0,0,MPI_COMM_WORLD,&status);
@@ -166,10 +176,33 @@ void slave()
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
    //cout << "Hallo, ich bin slave nummer " << myrank << " und habe erhalten: " << std::fixed << std::setprecision(10) << matrixPart[0] << " | " << matrixPart[1] << " | " << matrixPart[2] << " | " << matrixPart[3] << " | "<< matrixPart[4] << " | "<<  std::flush << std::endl;
    matrix nodeM(matrixPart,info[0], info[1]);
-      nodeM.jacobi(0.00000001);
-   nodeM.print();
+   int doneStatus = nodeM.jacobi(0.00000001);
+   //nodeM.print();
    cout << endl << endl << "node " << myrank << " ist fertig!" << endl;
-   //nodeM.jacobi(0.000000004);
 
+
+   /* node1 ist fertig, muss an node 2 senden */
+   if (myrank == 1)
+   {
+      cout << "ich, Node1, werde jetzt zeile " << info[0]-2 << "/" << info[0] << " an Node2 schicken" << endl;
+      mpiSendInfo[0] = doneStatus;
+      mpiSendInfo[1] = nodeM.getwidth();
+      MPI_Request req;
+      MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,&req);
+      MPI_Wait(&req,MPI_STATUSES_IGNORE);
+   /* letzter node */
+   } else if (myrank == nodeCount-1)
+   {
+      cout << "ich, Node" << nodeCount-1 << " werde jetzt Node " << myrank-1 << "zeile 1" << "/" << info[0] << " schicken" << endl;
+      //MPI_Recv(mpiInfo,2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+      //cout << "lo, hab mpiInfo erhalten, inhalt: " << mpiInfo[0] << " " << mpiInfo[1] << flush << endl;
+   /* restliche nodes */
+   } else
+   {
+      cout << "ich, Node " << myrank << " werde Zeile " << info[0]-2 << "/" << info[0] << " an Node " << myrank+1 << "senden" << endl;
+      cout << "ich, Node " << myrank << " werde Zeile " << 2 << "/" << info[0] << " an Node " << myrank-1 << "senden" << endl;
+      MPI_Recv(mpiGetInfo,2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+      cout << "lo, hab mpiInfo erhalten, inhalt: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
+   }
 }
 

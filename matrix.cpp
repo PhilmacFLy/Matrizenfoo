@@ -234,44 +234,36 @@ void matrix::gaussseidel(double Accuracy)
   }
 }
 */
-void matrix::jacobi(double acc)
+int matrix::jacobi(double acc)
 {
    /* temp matrix anlegen, mit werten der eigentlich matrix befuellen */
    matrix tmpmatrix(this->height, this->width);
    for(int i = 0; i < this->height*this->width; i++)
       tmpmatrix.setItem(i, this->getItem(i));
-   bool isInaccurate = true;
    //int cnt = 0;
-   while (isInaccurate)
+    /* neuen zellenwert berechnen */
+   for (int spalte = 1; spalte < this->height-1; spalte++)
    {
-      /* neuen zellenwert berechnen */
-      isInaccurate = false;
-      for (int spalte = 1; spalte < this->height-1; spalte++)
+      for (int spaltenelement = 1; spaltenelement < this->width-1; spaltenelement++)
       {
-         for (int spaltenelement = 1; spaltenelement < this->width-1; spaltenelement++)
-         {
-            double neuerWert = tmpmatrix.getItem((spalte-1)*this->getwidth()+spaltenelement);
-            neuerWert += tmpmatrix.getItem((spalte+1)*this->getwidth()+spaltenelement);
-            neuerWert += tmpmatrix.getItem(spalte*this->getwidth()+spaltenelement-1);
-            neuerWert += tmpmatrix.getItem(spalte*this->getwidth()+spaltenelement+1);
-            neuerWert *= .25;
-            werte[spalte*this->getwidth()+spaltenelement] = neuerWert;
-         }
+         double neuerWert = tmpmatrix.getItem((spalte-1)*this->getwidth()+spaltenelement);
+         neuerWert += tmpmatrix.getItem((spalte+1)*this->getwidth()+spaltenelement);
+         neuerWert += tmpmatrix.getItem(spalte*this->getwidth()+spaltenelement-1);
+         neuerWert += tmpmatrix.getItem(spalte*this->getwidth()+spaltenelement+1);
+         neuerWert *= .25;
+         werte[spalte*this->getwidth()+spaltenelement] = neuerWert;
       }
-      /* ALLE elemente ueberpruefen, ob genauigkeit erreicht ist, cnt gibt iterationen an, vllt ists ja mal gewuenscht */
-      int cnt = 0;
-      for (int i = 0 ; i < this->height*this->width;i++)
-      {
-         if (std::abs(acc) > std::abs(this->getItem(i) - tmpmatrix.getItem(i)))
-            cnt++;
-      }
-      if (cnt != this->height*this->width)
-         isInaccurate = true;
-
-      /* neue tempmatrix bauen */
-      for(int i = 0; i < this->height*this->width; i++)
-         tmpmatrix.setItem(i, this->getItem(i));
    }
+   /* ALLE elemente ueberpruefen, ob genauigkeit erreicht ist, cnt gibt iterationen an, vllt ists ja mal gewuenscht */
+   int cnt = 0;
+   for (int i = 0 ; i < this->height*this->width;i++)
+   {
+     if (std::abs(acc) > std::abs(this->getItem(i) - tmpmatrix.getItem(i)))
+         cnt++;
+   }
+   if (cnt != this->height*this->width)
+      return 1;
+   else return 0;
 }
 /*void matrix::jacobi(double Accuracy)
 {
