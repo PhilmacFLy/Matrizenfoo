@@ -45,8 +45,6 @@ int main(int argc, char** argv)
       cout;
 
    }
-   //cout << nprocs << endl;
-   //cout << myrank << endl;
    if (!myrank)
       master();
    else
@@ -153,6 +151,7 @@ void master()
 void slave(int nodeCount)
 {
    MPI_Status status;
+   MPI_Request req;
    int myrank;
    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
    int info[2];
@@ -187,9 +186,10 @@ void slave(int nodeCount)
       cout << "ich, Node1, werde jetzt zeile " << info[0]-2 << "/" << info[0] << " an Node2 schicken" << endl;
       mpiSendInfo[0] = doneStatus;
       mpiSendInfo[1] = nodeM.getwidth();
-      MPI_Request req;
       MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,&req);
       MPI_Wait(&req,MPI_STATUSES_IGNORE);
+      MPI_Recv(&mpiGetInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+      cout << "lo, ich, 1, habe was geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
    /* letzter node */
    } else if (myrank == nodeCount-1)
    {
@@ -201,8 +201,12 @@ void slave(int nodeCount)
    {
       cout << "ich, Node " << myrank << " werde Zeile " << info[0]-2 << "/" << info[0] << " an Node " << myrank+1 << "senden" << endl;
       cout << "ich, Node " << myrank << " werde Zeile " << 2 << "/" << info[0] << " an Node " << myrank-1 << "senden" << endl;
+      mpiSendInfo[0] = 1;
+      mpiSendInfo[1] = nodeM.getwidth();
       MPI_Recv(mpiGetInfo,2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
       cout << "lo, hab mpiInfo erhalten, inhalt: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
+      MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,&req);
+      MPI_Wait(&req,MPI_STATUSES_IGNORE);
    }
 }
 
