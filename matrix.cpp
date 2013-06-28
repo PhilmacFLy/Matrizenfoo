@@ -95,7 +95,7 @@ void matrix::print()
 {
    for (int i = 0; i < this->width*this->height; i++)
    {
-      std::cout << std::fixed << std::setprecision(10) << werte[i] << "\t";
+      std::cout << std::fixed << std::setprecision(3) << werte[i] << "\t";
       if ( ((i+1) % this->width == 0) && i != 0)
          std::cout << std::endl;
    }
@@ -151,9 +151,7 @@ double * matrix::getRowPtr(int row, double* targetPtr)
    }
    int oneDimPos = (row*width);
    targetPtr = (&werte[oneDimPos]);
-   if(row < height)
-      return (targetPtr);
-   return 0;
+   return (targetPtr);
 }
 
 /*

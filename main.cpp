@@ -216,16 +216,21 @@ void slave(int nodeCount)
             }
             cout << "lo, ich, 1, habe was geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
          }
-         MPI_Wait(&reqStatus,MPI_STATUSES_IGNORE);
-         MPI_Wait(&reqLine,MPI_STATUSES_IGNORE);
-         /* genauigkeit erreicht? dann abbrechen */
+
+         //Eingelesene Zeilen zuweißen
+         matrix test(getLine,1,20); test.print();
+
+          /* genauigkeit erreicht? dann abbrechen */
          if (jacobiReturn == 0)
          {
             nodeDone = 1;
          }
-
+         MPI_Wait(&reqStatus,MPI_STATUSES_IGNORE);
+         MPI_Wait(&reqLine,MPI_STATUSES_IGNORE);
       }
       //TODO: zeugs an master senden.
+
+
    /* letzter node */
    } else if (myrank == nodeCount-1)
    {
@@ -263,15 +268,19 @@ void slave(int nodeCount)
             }
             cout << "lo, ich, 1, habe was geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
          }
-         MPI_Wait(&reqStatus,MPI_STATUSES_IGNORE);
-         MPI_Wait(&reqLine,MPI_STATUSES_IGNORE);
+
+         //Eingelesene Zeilen zuweißen
+         nodeM.setRow(nodeM.getHeight()-1,getLine);
+
          /* genauigkeit erreicht? dann abbrechen */
          if (jacobiReturn == 0)
          {
             nodeDone = 1;
          }
-
+         MPI_Wait(&reqStatus,MPI_STATUSES_IGNORE);
+         MPI_Wait(&reqLine,MPI_STATUSES_IGNORE);
       }
+
    /* restliche nodes */
    } else
    {
@@ -284,7 +293,7 @@ void slave(int nodeCount)
       double * sendUpperLine; //Pointer auf die zu sendende obere Zeile
       double * sendLowerLine;  //Pointer auf die zu sendende obere Zeile
       sendUpperLine = nodeM.getRowPtr(1,sendUpperLine); //festlegen auf obere zu sendende Zeile
-      sendLowerLine = nodeM.getRowPtr((nodeM.getHeight()-2),sendLowerLine); //festlegen auf untere zu sendende Zeile      
+      sendLowerLine = nodeM.getRowPtr((nodeM.getHeight()-2),sendLowerLine); //festlegen auf untere zu sendende Zeile
 
       while (nodeDone == 0)
       {
@@ -333,6 +342,11 @@ void slave(int nodeCount)
             }
             cout << "lo, ich, 2, habe was von unten geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
          }
+
+         //Eingelesene Zeilen zuweißen
+         nodeM.setRow(0,getUpperLine);
+         nodeM.setRow(nodeM.getHeight()-1,getLowerLine);
+
          /* genauigkeit erreicht? dann abbrechen */
          if (jacobiReturn == 0)
          {

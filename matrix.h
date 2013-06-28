@@ -47,7 +47,7 @@ class matrix
       void print();
       int jacobi(double acc);
       //void init();
-      
+
    //Get-Methoden:
       int getHeight() {return (height);}
       int getWidth() {return (width);}
@@ -55,7 +55,7 @@ class matrix
       //!Vorsicht "roher Pointer"
       double* getRowPtr(int row, double*targetPtr);
       //double * getRowPtr(int startLine, int endLine, double* targetPtr);
-            
+
    //Set-Methoden:
       void setItem(int column, int row, double item);
       //Achtung items muss mindestens width*Elemente lang sein!
