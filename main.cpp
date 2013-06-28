@@ -25,7 +25,7 @@
 
 using namespace std;
 
-void master();
+void master(int nodeCount);
 void slave(int nodeCount);
 int main(int argc, char** argv)
 {
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 
    }
    if (!myrank)
-      master();
+      master(nodeCount);
    else
       slave(nodeCount);
    MPI_Barrier(MPI_COMM_WORLD);
@@ -55,17 +55,17 @@ int main(int argc, char** argv)
 }
 
 
-void master()
+void master(int nodeCount)
 {
 //   MPI_Status status;
-   matrix testMatrix(20,20);
-   testMatrix.init();
-   double* testArray = new double[testMatrix.getwidth()*testMatrix.getheight()];
-   testArray = testMatrix.getpart(0,2);
+   matrix myMatrix(20,20);
+   //testMatrix.init();
+   double* sendArray = new double[myMatrix.getWidth()*myMatrix.getHeight()];
+   //testArray = testMatrix.getpart(0,2);
    //testMatrix.print();
    //cout << testMatrix.getItem(1, 3) << endl;
    //testMatrix
-   int nodeCount = 4;
+   //int nodeCount = 4;
    //MPI_Comm_size(MPI_COMM_WORLD, &nodeCount);
    //testMatrix.jacobi(0.00000005);
    //testMatrix.print();
@@ -74,9 +74,9 @@ void master()
    /* Schritt 1: aufteilen der matrix in teilmatrizen,
       abhaengig von der anzahl der nodes */
    /* zeilen, die jedem node zum berechnen uebergeben wird */
-   int linesPerNode = testMatrix.getheight() / (nodeCount-1);
+   int linesPerNode = myMatrix.getHeight() / (nodeCount-1);
    /* anzahl der zeilen, die uebrig bleiben */
-   int modLines = testMatrix.getheight() % (nodeCount-1);
+   int modLines = myMatrix.getHeight() % (nodeCount-1);
    int anfang = 0;
    int ende = 0;
    /* erster node */
@@ -85,24 +85,24 @@ void master()
       ende = anfang+linesPerNode+1; /* +1 fuer modLines, +1 fuer ueberschneidung */
       cout << "1ich wuerde jetzt knoten nummer " << 1 << " die zeilen " << anfang << " bis " << ende << " schicken." << endl;
       int foo[2];
-      testArray = testMatrix.getpart(anfang,ende);
+      sendArray = myMatrix.getRowPtr(anfang,sendArray);
 
       foo[0] = ende-anfang+1;
-      foo[1] = testMatrix.getwidth();
+      foo[1] = myMatrix.getWidth();
       MPI_Send(&foo[0],2,MPI_INTEGER,1,0,MPI_COMM_WORLD);
-      MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,1,1, MPI_COMM_WORLD);
+      MPI_Send(&sendArray[0],(ende+1-anfang)*myMatrix.getWidth(),MPI_DOUBLE,1,1, MPI_COMM_WORLD);
       anfang = ende-1;
       modLines--;
    } else
     {
       ende = anfang+linesPerNode; /* +1 fuer ueberschneidung */
       cout << "2ich wuerde jetzt knoten nummer " << 1 << " die zeilen " << anfang << " bis " << ende << " schicken." << endl;
-      testArray = testMatrix.getpart(anfang,ende);
+      sendArray = myMatrix.getRowPtr(anfang,sendArray);
       int foo[2];
       foo[0] = ende-anfang+1;
-      foo[1] = testMatrix.getwidth();
+      foo[1] = myMatrix.getWidth();
       MPI_Send(&foo[0],2,MPI_INTEGER,1,0,MPI_COMM_WORLD);
-      MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,1,1, MPI_COMM_WORLD);
+      MPI_Send(&sendArray[0],(ende+1-anfang)*myMatrix.getWidth(),MPI_DOUBLE,1,1, MPI_COMM_WORLD);
       anfang = ende-1;
    }
 
@@ -113,36 +113,36 @@ void master()
       {
          ende = anfang+linesPerNode+1+1;
          cout << "1ich wuerde jetzt knoten nummer " << i << " die zeilen " << anfang << " bis " << ende << " schicken." << endl;
-         testArray = testMatrix.getpart(anfang,ende);
+         sendArray = myMatrix.getRowPtr(anfang,sendArray);
          int foo[2];
          foo[0] = ende-anfang+1;
-         foo[1] = testMatrix.getwidth();
+         foo[1] = myMatrix.getWidth();
          MPI_Send(&foo[0],2,MPI_INTEGER,i,0,MPI_COMM_WORLD);
-         MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
+         MPI_Send(&sendArray[0],(ende+1-anfang)*myMatrix.getWidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
          anfang = ende-1;
          modLines--;
       } else
       {
          ende = anfang+linesPerNode+1;
          cout << "2ich wuerde jetzt knoten nummer " << i << " die zeilen " << anfang << " bis " << ende << " schicken." << endl;
-         testArray = testMatrix.getpart(anfang,ende);
+         sendArray = myMatrix.getRowPtr(anfang,sendArray);
          int foo[2];
          foo[0] = ende-anfang+1;
-         foo[1] = testMatrix.getwidth();
+         foo[1] = myMatrix.getWidth();
          MPI_Send(&foo[0],2,MPI_INTEGER,i,0,MPI_COMM_WORLD);
-         MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
+         MPI_Send(&sendArray[0],(ende+1-anfang)*myMatrix.getWidth(),MPI_DOUBLE,i,1, MPI_COMM_WORLD);
          anfang = ende-1;
       }
    }
    /* letzter node */
-   ende = testMatrix.getheight()-1; /* +1 fuer modLines, +1 fuer ueberschneidung */
+   ende = myMatrix.getHeight()-1; /* +1 fuer modLines, +1 fuer ueberschneidung */
    cout << "1ich wuerde jetzt den letzten knoten " <<" die zeilen " << anfang << " bis " << ende << " schicken." << endl;
    int foo[2];
-   testArray = testMatrix.getpart(anfang,ende);
+   sendArray = myMatrix.getRowPtr(anfang,sendArray);
    foo[0] = ende-anfang+1;
-   foo[1] = testMatrix.getwidth();
+   foo[1] = myMatrix.getWidth();
    MPI_Send(&foo[0],2,MPI_INTEGER,nodeCount-1,0,MPI_COMM_WORLD);
-   MPI_Send(&testArray[0],(ende+1-anfang)*testMatrix.getwidth(),MPI_DOUBLE,nodeCount-1,1, MPI_COMM_WORLD);
+   MPI_Send(&sendArray[0],(ende+1-anfang)*myMatrix.getWidth(),MPI_DOUBLE,nodeCount-1,1, MPI_COMM_WORLD);
    anfang = ende-1;
    modLines--;
 }
@@ -185,7 +185,9 @@ void slave(int nodeCount)
       int neighborDone = 0;
       int nodeDone = 0;
       int jacobiReturn = 0;
-      double getLine[nodeM.getwidth()];
+      double getLine[nodeM.getWidth()];
+      double * sendLine; //Pointer auf die zu sendende vorletzte Zeile
+      sendLine = nodeM.getRowPtr((nodeM.getHeight()-2),sendLine); //festlegen auf vorletzte Zeile
 
       while (nodeDone == 0)
       {
@@ -193,10 +195,10 @@ void slave(int nodeCount)
          cout << "ich, Node1, werde jetzt zeile " << info[0]-2 << "/" << info[0] << " an Node2 schicken" << endl;
          /* info array aufbauen */
          mpiSendInfo[0] = jacobiReturn;
-         mpiSendInfo[1] = nodeM.getwidth();
+         mpiSendInfo[1] = nodeM.getWidth();
          /* nonblocking senden */
          MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,&reqStatus);
-         MPI_Isend(&nodeM.werte[info[0]-2],nodeM.getwidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,&reqLine);
+         MPI_Isend(sendLine,nodeM.getWidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,&reqLine);
          /* status des nachbarn, ausser er hat im letzten schritt schon ende bekannt gegeben  */
          if (neighborDone != 1)
          {
@@ -205,11 +207,11 @@ void slave(int nodeCount)
             /* nachbar ist noch nicht fertig, line wird erwartet */
             if (mpiGetInfo[0] == 1)
             {
-               MPI_Recv(&getLine[0],nodeM.getwidth(),MPI_DOUBLE,2,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               MPI_Recv(&getLine[0],nodeM.getWidth(),MPI_DOUBLE,2,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
             /* sonst: letztes mal zeile einlesen */
             } else
             {
-               MPI_Recv(&getLine[0],nodeM.getwidth(),MPI_DOUBLE,2,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               MPI_Recv(&getLine[0],nodeM.getWidth(),MPI_DOUBLE,2,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
                neighborDone = 1;
             }
             cout << "lo, ich, 1, habe was geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
@@ -230,7 +232,9 @@ void slave(int nodeCount)
       int neighborDone = 0;
       int nodeDone = 0;
       int jacobiReturn = 0;
-      double getLine[nodeM.getwidth()];
+      double getLine[nodeM.getWidth()];
+      double * sendLine; //Pointer auf die zu sendende 2.Zeile
+      sendLine = nodeM.getRowPtr(1,sendLine); //festlegen auf 2. Zeile (1 wecha ersta Zeile ^= 0 und so
 
       while (nodeDone == 0)
       {
@@ -238,10 +242,10 @@ void slave(int nodeCount)
          cout << "ich, Node3, werde jetzt zeile " << info[0]-2 << "/" << info[0] << " an Node2 schicken" << endl;
          /* info array aufbauen */
          mpiSendInfo[0] = jacobiReturn;
-         mpiSendInfo[1] = nodeM.getwidth();
+         mpiSendInfo[1] = nodeM.getWidth();
          /* nonblocking senden */
          MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,&reqStatus);
-         MPI_Isend(&nodeM.werte[info[0]-2],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,&reqLine);
+         MPI_Isend(&sendLine,nodeM.getWidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,&reqLine);
          /* status des nachbarn, ausser er hat im letzten schritt schon ende bekannt gegeben  */
          if (neighborDone != 1)
          {
@@ -250,11 +254,11 @@ void slave(int nodeCount)
             /* nachbar ist noch nicht fertig, line wird erwartet */
             if (mpiGetInfo[0] == 1)
             {
-               MPI_Recv(&getLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               MPI_Recv(&getLine[0],nodeM.getWidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
             /* sonst: letztes mal zeile einlesen */
             } else
             {
-               MPI_Recv(&getLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               MPI_Recv(&getLine[0],nodeM.getWidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
                neighborDone = 1;
             }
             cout << "lo, ich, 1, habe was geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
@@ -275,17 +279,22 @@ void slave(int nodeCount)
       int lowerNeighborDone = 0;
       int nodeDone = 0;
       int jacobiReturn = 0;
-      double getUpperLine[nodeM.getwidth()];
-      double getLowerLine[nodeM.getwidth()];
+      double getUpperLine[nodeM.getWidth()];
+      double getLowerLine[nodeM.getWidth()];
+      double * sendUpperLine; //Pointer auf die zu sendende obere Zeile
+      double * sendLowerLine;  //Pointer auf die zu sendende obere Zeile
+      sendUpperLine = nodeM.getRowPtr(1,sendUpperLine); //festlegen auf obere zu sendende Zeile
+      sendLowerLine = nodeM.getRowPtr((nodeM.getHeight()-2),sendLowerLine); //festlegen auf untere zu sendende Zeile      
+
       while (nodeDone == 0)
       {
          jacobiReturn = nodeM.jacobi(0.000001);
          /* node drueber */
          /* status array */
          mpiSendInfo[0] = jacobiReturn;
-         mpiSendInfo[1] = nodeM.getwidth();
+         mpiSendInfo[1] = nodeM.getWidth();
          MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank-1,42,MPI_COMM_WORLD,&reqStatus);
-         MPI_Isend(&nodeM.werte[2],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,&reqLine);
+         MPI_Isend(&sendUpperLine,nodeM.getWidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,&reqLine);
          if (upperNeighborDone != 1)
          {
             /* info array abholen */
@@ -293,11 +302,11 @@ void slave(int nodeCount)
             /* nachbar ist noch nicht fertig, line wird erwartet */
             if (mpiGetInfo[0] == 1)
             {
-               MPI_Recv(&getUpperLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               MPI_Recv(&getUpperLine[0],nodeM.getWidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
             /* sonst: letztes mal zeile einlesen */
             } else
             {
-               MPI_Recv(&getUpperLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               MPI_Recv(&getUpperLine[0],nodeM.getWidth(),MPI_DOUBLE,myrank-1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
                upperNeighborDone = 1;
             }
             cout << "lo, ich, 2, habe was von oben geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;
@@ -307,7 +316,7 @@ void slave(int nodeCount)
 
          /* node drunter */
          MPI_Isend(&mpiSendInfo[0],2,MPI_INTEGER,myrank+1,42,MPI_COMM_WORLD,&reqStatus);
-         MPI_Isend(&nodeM.werte[info[0]-2],nodeM.getwidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,&reqLine);
+         MPI_Isend(&sendLowerLine,nodeM.getWidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,&reqLine);
          if (lowerNeighborDone != 1)
          {
             /* info array abholen */
@@ -315,11 +324,11 @@ void slave(int nodeCount)
             /* nachbar ist noch nicht fertig, line wird erwartet */
             if (mpiGetInfo[0] == 1)
             {
-               MPI_Recv(&getLowerLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               MPI_Recv(&getLowerLine[0],nodeM.getWidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
             /* sonst: letztes mal zeile einlesen */
             } else
             {
-               MPI_Recv(&getLowerLine[0],nodeM.getwidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
+               MPI_Recv(&getLowerLine[0],nodeM.getWidth(),MPI_DOUBLE,myrank+1,43,MPI_COMM_WORLD,MPI_STATUSES_IGNORE);
                lowerNeighborDone = 1;
             }
             cout << "lo, ich, 2, habe was von unten geGETet: " << mpiGetInfo[0] << " " << mpiGetInfo[1] << flush << endl;

@@ -102,12 +102,38 @@ void matrix::print()
    std::cout << std::endl;
 }
 
-//int matrix::jacobi(double Accuracy)
+int matrix::jacobi(double acc)
+{
+   double neuerWert = -1;
+   bool isAccurate = true;
+   //Erzeuge neue tmpMatrix
+   double* werte;
+   matrix tmpMatrix(getRowPtr(0,werte),height,width);
+   
+   for (int row = 1; row < getHeight()-1; row++)
+   {
+      for (int column =1; column < getWidth()-1; column++)
+      {
+         double neuerWert = tmpMatrix.getItem(column,(row-1));
+         neuerWert += tmpMatrix.getItem(column,(row+1));
+         neuerWert += tmpMatrix.getItem((column-1),row);
+         neuerWert += tmpMatrix.getItem((column+1),row);
+         neuerWert *= .25;
+         setItem(column,row,neuerWert);
+         //Sobald ein Wert ausserhalb der Genauigkeit ist.
+         if ( (std::abs(acc) > std::abs(getItem(column,row) - tmpMatrix.getItem(column,row))) || (!isAccurate) )
+         {
+            isAccurate = false;
+         }
+      }
+   }
+   
+   if (isAccurate)
+      return 0;
+   else
+      return 1;
+}
 
-   ////Set-Methoden:
-      //void setItem(int column, int row, double item);
-      ////Achtung items muss mindestens width*Elemente lang sein!
-      //void setrow(int row, double* items);
 
 //Getter
 double matrix::getItem(int column, int row)

@@ -34,8 +34,9 @@ class matrix
 //*************************************************************************************************************************************************
    public:
    //Konstruktore:
-      //erzeugt eine mit 0 vorbelegte Matrix
+      //erzeugt eine mit Randbedingungen vorbelegte Matrix
       matrix(int inwidth, int inheight);
+      //erzeuge eine Matrix mit dem Inhalt von array;
       matrix(double* array, int inwidth, int inheight);
 
    //Destruktor
@@ -44,15 +45,15 @@ class matrix
    //Methoden
       void copyM(matrix toCopy);
       void print();
-      //int jacobi(double Accuracy);
-      void init();
+      int jacobi(double acc);
+      //void init();
       
    //Get-Methoden:
       int getHeight() {return (height);}
       int getWidth() {return (width);}
       double getItem(int column, int row);
       //!Vorsicht "roher Pointer"
-      double * getRowPtr(int row, double* targetPtr);
+      double* getRowPtr(int row, double*targetPtr);
       //double * getRowPtr(int startLine, int endLine, double* targetPtr);
             
    //Set-Methoden:
