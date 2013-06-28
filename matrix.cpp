@@ -41,7 +41,7 @@ matrix::matrix(int inwidth, int inheight)
          this->setItem(j,i,0);
       }
    }
-   
+
    //Erste/Letze Zeile
    this->setItem(0,0,1);
    this->setItem(width-1,height-1,1);
@@ -51,7 +51,7 @@ matrix::matrix(int inwidth, int inheight)
       this->setItem(k,0,Rand);
       this->setItem(width-k-1,height-1,Rand);
    }
-   
+
    //Erste letze Spalte
    for (int n=1; n<height-1; n++)
    {
@@ -109,12 +109,12 @@ int matrix::jacobi(double acc)
    //Erzeuge neue tmpMatrix
    double* werte;
    matrix tmpMatrix(getRowPtr(0,werte),height,width);
-   
+
    for (int row = 1; row < getHeight()-1; row++)
    {
       for (int column =1; column < getWidth()-1; column++)
       {
-         double neuerWert = tmpMatrix.getItem(column,(row-1));
+         neuerWert = tmpMatrix.getItem(column,(row-1));
          neuerWert += tmpMatrix.getItem(column,(row+1));
          neuerWert += tmpMatrix.getItem((column-1),row);
          neuerWert += tmpMatrix.getItem((column+1),row);
@@ -127,7 +127,7 @@ int matrix::jacobi(double acc)
          }
       }
    }
-   
+
    if (isAccurate)
       return 0;
    else
@@ -147,12 +147,13 @@ double * matrix::getRowPtr(int row, double* targetPtr)
    if(row >= height)
    {
       std::cout << "!!!!getRowPtr: Zugriff auf Zeile: "<<row<<" nicht möglich. maximale Zeile der Matrix ist: "<< height-1 << std::endl;
-      return 0;     
+      return 0;
    }
    int oneDimPos = (row*width);
    targetPtr = (&werte[oneDimPos]);
    if(row < height)
-   return (targetPtr);
+      return (targetPtr);
+   return 0;
 }
 
 /*
@@ -161,14 +162,14 @@ double * matrix::getRowPtr(int startLine, int endLine, double* targetPtr)
    if( (startLine>=height) || (endLine>=height) )
    {
       std::cout << "!!!!getRowPtr: Unzulässiger Zugriff (" << startLine << "," << endLine << ") Maximale Höhe ist" << height-1 << std::endl;
-      return 0;     
+      return 0;
    }
    int oneDimPos = (row*width);
    targetPtr = (&werte[oneDimPos]);
    if(row < height)
    return (targetPtr);
 }
-*/  
+*/
 
 //Setter
 void matrix::setItem(int column, int row, double item)
