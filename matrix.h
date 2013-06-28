@@ -27,28 +27,38 @@ class matrix
 //*************************************************************************************************************************************************
    private:
       int width, height;
-      //matrix fork();
+      double *werte;
 
 //*************************************************************************************************************************************************
 // Public Definitions
 //*************************************************************************************************************************************************
    public:
-      matrix(int inheight, int inwidth);
-      matrix(double* array, int inheight, int inwidth);
-      double *werte;
+   //Konstruktore:
+      //erzeugt eine mit 0 vorbelegte Matrix
+      matrix(int inwidth, int inheight);
+      matrix(double* array, int inwidth, int inheight);
+
+   //Destruktor
+      ~matrix ();
+
+   //Methoden
       void copyM(matrix toCopy);
-      double * getpart(int height, int width);
       void print();
-      //void gaussseidel(double Accuracy);
-      int jacobi(double Accuracy);
+      //int jacobi(double Accuracy);
       void init();
-      //double * getMatrix(double * testArray);
-      int getheight();
-      int getwidth();
-      double getItem(int x, int y);
-      double getItem(int x);
-      void setItem(int x, double val);
-      void setItem(int x, int y, double item);
+      
+   //Get-Methoden:
+      int getHeight() {return (height);}
+      int getWidth() {return (width);}
+      double getItem(int column, int row);
+      //!Vorsicht "roher Pointer"
+      double * getRowPtr(int row, double* targetPtr);
+      //double * getRowPtr(int startLine, int endLine, double* targetPtr);
+            
+   //Set-Methoden:
+      void setItem(int column, int row, double item);
+      //Achtung items muss mindestens width*Elemente lang sein!
+      void setRow(int row, double* items);
 };
 
 #endif // MATRIX_H
